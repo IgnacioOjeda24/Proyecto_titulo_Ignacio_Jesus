@@ -257,6 +257,21 @@
                     <p class="prop-address"><i class="fas fa-map-marker-alt text-gold"></i> <span
                             id="prop-address">...</span></p>
 
+                    <!-- Botones de Compartir -->
+                    <div class="share-container"
+                        style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+                        <span style="font-weight: 600; font-size: 0.9rem; color: #555;">Compartir:</span>
+                        <button onclick="shareWhatsApp()" title="Compartir en WhatsApp"
+                            style="background: #25D366; color: white; border: none; width: 35px; height: 35px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: 0.3s;"><i
+                                class="fab fa-whatsapp"></i></button>
+                        <button onclick="shareFacebook()" title="Compartir en Facebook"
+                            style="background: #1877F2; color: white; border: none; width: 35px; height: 35px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: 0.3s;"><i
+                                class="fab fa-facebook-f"></i></button>
+                        <button onclick="copyLink()" id="btn-copy-link" title="Copiar Enlace"
+                            style="background: #6c757d; color: white; border: none; width: 35px; height: 35px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: 0.3s;"><i
+                                class="fas fa-link"></i></button>
+                    </div>
+
                     <div class="gallery-container">
                         <img src="" id="main-img" class="gallery-main" alt="Principal" onclick="openLightbox()">
                         <button class="nav-btn prev" onclick="changeImage(-1)"><i
@@ -330,9 +345,35 @@
     <!-- Lightbox Structure -->
     <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
         <span class="close-lightbox" onclick="closeLightbox(event)">&times;</span>
+
+        <!-- Controles de Zoom -->
+        <div class="zoom-controls"
+            style="position: absolute; top: 20px; left: 20px; z-index: 10001; display: flex; gap: 10px;"
+            onclick="event.stopPropagation()">
+            <button onclick="zoomInOut(0.2, event)" title="Acercar"
+                style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; border-radius: 4px; width: 40px; height: 40px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: 0.3s;"
+                onmouseover="this.style.background='rgba(255,255,255,0.4)'"
+                onmouseout="this.style.background='rgba(255,255,255,0.2)'"><i class="fas fa-search-plus"></i></button>
+            <button onclick="zoomInOut(-0.2, event)" title="Alejar"
+                style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; border-radius: 4px; width: 40px; height: 40px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: 0.3s;"
+                onmouseover="this.style.background='rgba(255,255,255,0.4)'"
+                onmouseout="this.style.background='rgba(255,255,255,0.2)'"><i class="fas fa-search-minus"></i></button>
+            <button onclick="resetZoom(event)" title="Restablecer Zoom"
+                style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; border-radius: 4px; width: 40px; height: 40px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: 0.3s;"
+                onmouseover="this.style.background='rgba(255,255,255,0.4)'"
+                onmouseout="this.style.background='rgba(255,255,255,0.2)'"><i class="fas fa-compress"></i></button>
+        </div>
+
         <button class="lightbox-nav prev" onclick="changeLightboxImage(-1, event)"><i
                 class="fas fa-chevron-left"></i></button>
-        <img class="lightbox-content" id="lightbox-img">
+
+        <div id="lightbox-img-container"
+            style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; overflow: hidden;"
+            onclick="event.stopPropagation()">
+            <img class="lightbox-content" id="lightbox-img"
+                style="transition: transform 0.2s ease; transform-origin: center center; cursor: grab;">
+        </div>
+
         <button class="lightbox-nav next" onclick="changeLightboxImage(1, event)"><i
                 class="fas fa-chevron-right"></i></button>
     </div>
@@ -381,6 +422,7 @@
                             if (window.galleryList.length > 0) {
                                 lightboxImg.src = window.galleryList[window.currentIndex];
                             }
+                            if (window.resetZoom) window.resetZoom();
                         }
 
                         window.closeLightbox = function (e) {
@@ -392,7 +434,101 @@
                             if (e) e.stopPropagation();
                             changeImage(direction);
                             document.getElementById('lightbox-img').src = window.galleryList[window.currentIndex];
+                            if (window.resetZoom) window.resetZoom();
                         }
+
+                        // --- NUEVAS FUNCIONES DE COMPARTIR ---
+                        window.shareWhatsApp = function () {
+                            const url = encodeURIComponent(window.location.href);
+                            const title = encodeURIComponent(document.getElementById('prop-title').innerText || 'Propiedad');
+                            window.open(`https://wa.me/?text=${title}%20-%20${url}`, '_blank');
+                        };
+
+                        window.shareFacebook = function () {
+                            const url = encodeURIComponent(window.location.href);
+                            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+                        };
+
+                        window.copyLink = function () {
+                            navigator.clipboard.writeText(window.location.href).then(() => {
+                                const btn = document.getElementById('btn-copy-link');
+                                const originalHtml = btn.innerHTML;
+                                btn.innerHTML = '<i class="fas fa-check"></i>';
+                                setTimeout(() => { btn.innerHTML = originalHtml; }, 2000);
+                            });
+                        };
+
+                        // --- FUNCIONALIDAD DE ZOOM ---
+                        window.zoomLevel = 1;
+                        let isDragging = false, startX, startY, translateX = 0, translateY = 0;
+
+                        window.zoomInOut = function (step, e) {
+                            if (e) e.stopPropagation();
+                            window.zoomLevel += step;
+                            if (window.zoomLevel < 1) {
+                                window.zoomLevel = 1;
+                                translateX = 0;
+                                translateY = 0;
+                            }
+                            if (window.zoomLevel > 5) window.zoomLevel = 5;
+                            applyTransform();
+                        };
+
+                        window.resetZoom = function (e) {
+                            if (e) e.stopPropagation();
+                            window.zoomLevel = 1;
+                            translateX = 0;
+                            translateY = 0;
+                            applyTransform();
+                        };
+
+                        function applyTransform() {
+                            const img = document.getElementById('lightbox-img');
+                            img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${window.zoomLevel})`;
+                            img.style.cursor = window.zoomLevel > 1 ? 'grab' : 'default';
+                        }
+
+                        // Evento scroll del ratón para zoom
+                        document.getElementById('lightbox').addEventListener('wheel', function (e) {
+                            if (this.style.display === 'flex') {
+                                e.preventDefault();
+                                if (e.deltaY < 0) {
+                                    window.zoomInOut(0.2, e);
+                                } else {
+                                    window.zoomInOut(-0.2, e);
+                                }
+                            }
+                        }, { passive: false });
+
+                        // Eventos para arrastrar (panning)
+                        const lightboxContainer = document.getElementById('lightbox-img-container');
+                        lightboxContainer.addEventListener('mousedown', (e) => {
+                            if (window.zoomLevel > 1) {
+                                isDragging = true;
+                                const img = document.getElementById('lightbox-img');
+                                img.style.cursor = 'grabbing';
+                                img.style.transition = 'none'; // quitar transición para fluidez
+                                startX = e.clientX - translateX;
+                                startY = e.clientY - translateY;
+                                e.preventDefault();
+                            }
+                        });
+
+                        window.addEventListener('mouseup', () => {
+                            if (isDragging) {
+                                isDragging = false;
+                                const img = document.getElementById('lightbox-img');
+                                img.style.cursor = window.zoomLevel > 1 ? 'grab' : 'default';
+                                img.style.transition = 'transform 0.2s ease'; // restaurar transición
+                            }
+                        });
+
+                        window.addEventListener('mousemove', (e) => {
+                            if (!isDragging) return;
+                            translateX = e.clientX - startX;
+                            translateY = e.clientY - startY;
+                            applyTransform();
+                        });
 
                         // Llenar textos básicos
                         document.getElementById('bread-code').innerText = `COD: ${p.id}`;
