@@ -251,81 +251,102 @@
             <div class="catalog-grid">
 
                 <aside>
+                    <!-- INICIO BARRA DE FILTROS AVANZADOS -->
                     <div class="sidebar-filters">
-                        <div class="filter-title">Filtrar Propiedades</div>
-                        <form id="filter-form">
+                        <div class="filter-title">
+                            <i class="fas fa-sliders-h me-2"></i> Búsqueda Avanzada
+                        </div>
+                        <form id="advanced-filter-form">
 
-                            <div class="form-group">
-                                <label>Operación</label>
-                                <select id="filter-operacion" class="form-control">
-                                    <option value="">Todas</option>
+                            <!-- 1. Operación -->
+                            <div class="form-group mb-3">
+                                <label for="adv-operacion">Tipo de Operación</label>
+                                <select id="adv-operacion" class="form-control">
+                                    <option value="">Todas las operaciones</option>
                                     <option value="venta">Venta</option>
                                     <option value="arriendo">Arriendo</option>
-                                    <option value="temporal">Temporal</option>
+                                    <option value="temporal">Arriendo Temporal</option>
+                                    <option value="nuevos">Proyectos Nuevos</option>
                                 </select>
                             </div>
 
-                            <div class="form-group">
-                                <label>Tipo de Propiedad</label>
-                                <select id="filter-tipo" class="form-control">
-                                    <option value="">Seleccione...</option>
+                            <!-- 2. Tipo de Propiedad -->
+                            <div class="form-group mb-3">
+                                <label for="adv-tipo">Tipo de Propiedad</label>
+                                <select id="adv-tipo" class="form-control">
+                                    <option value="">Todos los tipos</option>
                                     <option value="Casa">Casa</option>
                                     <option value="Departamento">Departamento</option>
-                                    <option value="Oficina">Oficina</option>
-                                    <option value="Sitio">Sitio</option>
-                                    <option value="Local Comercial">Local Comercial</option>
-                                    <option value="Industrial">Industrial</option>
-                                    <option value="Agrícola">Agrícola</option>
                                     <option value="Parcela">Parcela</option>
-                                    <option value="Estacionamiento">Estacionamiento</option>
-                                    <option value="Terreno Construccion">Terreno Construccion</option>
+                                    <option value="Terreno">Terreno</option>
+                                    <option value="Local Comercial">Local Comercial</option>
+                                    <option value="Oficina">Oficina</option>
                                     <option value="Bodega">Bodega</option>
-                                    <option value="Negocio/Patentes/Derechos de llave">Negocio/Patentes/Derechos de
-                                        llave</option>
-                                    <option value="Residencial/Pieza">Residencial/Pieza</option>
-                                    <option value="Hotel/Apart Hotel">Hotel/Apart Hotel</option>
-                                    <option value="Complejos Turísticos">Complejos Turísticos</option>
-                                    <option value="Departamento Amoblado">Departamento Amoblado</option>
                                 </select>
                             </div>
 
-                            <div class="form-group">
+                            <!-- 3. Ubicación -->
+                            <div class="form-group mb-3">
                                 <label>Ubicación</label>
-                                <input type="text" id="filter-comuna" class="form-control"
-                                    placeholder="Ej: Los Andes, Providencia...">
+                                <input type="text" id="adv-region" class="form-control mb-2" placeholder="Región...">
+                                <input type="text" id="adv-comuna" class="form-control mb-2" placeholder="Comuna...">
+                                <input type="text" id="adv-sector" class="form-control mb-2" placeholder="Sector...">
+
+                                <!-- Botón / Contenedor preparado para Mapa Interactivo (Sin funcionalidad por ahora) -->
+                                <button type="button" class="btn btn-outline-secondary w-100 btn-sm mt-1"
+                                    style="font-size: 0.8rem;">
+                                    <i class="fas fa-map-marked-alt"></i> Ver en Mapa Interactivo
+                                </button>
                             </div>
 
-                            <div class="row">
+                            <!-- 4. Rango de Precios -->
+                            <div class="form-group mb-3">
+                                <label>Rango de Precio</label>
+                                <div class="d-flex gap-2">
+                                    <input type="number" id="adv-precio-desde" class="form-control" placeholder="Desde">
+                                    <input type="number" id="adv-precio-hasta" class="form-control" placeholder="Hasta">
+                                </div>
+                            </div>
+
+                            <!-- 5 y 6. Dormitorios y Baños -->
+                            <div class="row mb-4">
                                 <div class="col-6">
                                     <div class="form-group">
-                                        <label>Dormitorios</label>
-                                        <select id="filter-dorm" class="form-control">
+                                        <label for="adv-dorm">Dormitorios</label>
+                                        <select id="adv-dorm" class="form-control">
                                             <option value="0">Todos</option>
-                                            <option value="1">1+</option>
-                                            <option value="2">2+</option>
-                                            <option value="3">3+</option>
-                                            <option value="4">4+</option>
+                                            <option value="1">1 o más</option>
+                                            <option value="2">2 o más</option>
+                                            <option value="3">3 o más</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="form-group">
-                                        <label>Baños</label>
-                                        <select id="filter-banos" class="form-control">
+                                        <label for="adv-banos">Baños</label>
+                                        <select id="adv-banos" class="form-control">
                                             <option value="0">Todos</option>
-                                            <option value="1">1+</option>
-                                            <option value="2">2+</option>
-                                            <option value="3">3+</option>
+                                            <option value="1">1 o más</option>
+                                            <option value="2">2 o más</option>
+                                            <option value="3">3 o más</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
 
-                            <button type="button" class="btn-filter" onclick="aplicarFiltros()">
-                                <i class="fas fa-search"></i> ACTUALIZAR RESULTADOS
-                            </button>
+                            <!-- Botones de Acción -->
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn-filter" onclick="aplicarFiltrosAvanzados()">
+                                    <i class="fas fa-search"></i> APLICAR FILTROS
+                                </button>
+                                <button type="button" class="btn btn-light border w-100"
+                                    style="padding: 10px; font-weight: 600;" onclick="limpiarFiltrosAvanzados()">
+                                    <i class="fas fa-eraser"></i> LIMPIAR
+                                </button>
+                            </div>
                         </form>
                     </div>
+                    <!-- FIN BARRA DE FILTROS AVANZADOS -->
                 </aside>
 
                 <main>
@@ -394,7 +415,10 @@
 
             if (opParam) {
                 // decodificamos por si acaso
-                document.getElementById('filter-operacion').value = decodeURIComponent(opParam);
+                const opSelect = document.getElementById('adv-operacion');
+                if (opSelect) {
+                    opSelect.value = decodeURIComponent(opParam);
+                }
 
                 // Actualizar título de la página
                 const titulos = {
@@ -409,16 +433,22 @@
 
             if (tipoParam) {
                 // Selecciona "Casa", "Departamento", etc.
-                document.getElementById('filter-tipo').value = decodeURIComponent(tipoParam);
+                const tipoSelect = document.getElementById('adv-tipo');
+                if (tipoSelect) {
+                    tipoSelect.value = decodeURIComponent(tipoParam);
+                }
             }
 
             if (ubicacionParam) {
                 // Escribe "Los Andes" en el campo de texto del filtro
-                document.getElementById('filter-comuna').value = decodeURIComponent(ubicacionParam);
+                const comunaInput = document.getElementById('adv-comuna');
+                if (comunaInput) {
+                    comunaInput.value = decodeURIComponent(ubicacionParam);
+                }
             }
 
             // 3. CARGAR DATOS
-            // Al terminar de cargar, la función fetchPropiedades llamará a aplicarFiltros()
+            // Al terminar de cargar, la función fetchPropiedades llamará a aplicarFiltrosAvanzados()
             // Como ya llenamos los inputs arriba con los datos de la URL, el filtro funcionará automático.
             fetchPropiedades();
         });
@@ -434,7 +464,7 @@
 
                 if (json.success) {
                     allProperties = json.data;
-                    aplicarFiltros();
+                    aplicarFiltrosAvanzados();
                 } else {
                     console.error("Error API:", json.message);
                 }
@@ -446,38 +476,72 @@
             }
         }
 
-        function aplicarFiltros() {
-            const op = document.getElementById('filter-operacion').value;
-            const tipo = document.getElementById('filter-tipo').value;
-            const comuna = document.getElementById('filter-comuna').value.toLowerCase();
-            const dorms = parseInt(document.getElementById('filter-dorm').value) || 0;
-            const banos = parseInt(document.getElementById('filter-banos').value) || 0;
+        function aplicarFiltrosAvanzados() {
+            // 1. Capturar todos los valores del formulario HTML
+            const op = document.getElementById('adv-operacion').value;
+            const tipo = document.getElementById('adv-tipo').value;
 
+            const region = document.getElementById('adv-region').value.toLowerCase().trim();
+            const comuna = document.getElementById('adv-comuna').value.toLowerCase().trim();
+            const sector = document.getElementById('adv-sector').value.toLowerCase().trim();
+
+            const precioDesde = parseFloat(document.getElementById('adv-precio-desde').value);
+            const precioHasta = parseFloat(document.getElementById('adv-precio-hasta').value);
+
+            const dorms = parseInt(document.getElementById('adv-dorm').value) || 0;
+            const banos = parseInt(document.getElementById('adv-banos').value) || 0;
+
+            // 2. Filtrar el listado principal de la API
             filteredProperties = allProperties.filter(p => {
-                // Filtro Operación
+                // --- A. Tipo de Operación ---
                 if (op === 'venta' && !p.operacion_venta) return false;
                 if (op === 'arriendo' && !p.operacion_arriendo) return false;
                 if (op === 'temporal' && !p.operacion_arriendo_temporal) return false;
-                // Filtro Tipo
+                if (op === 'nuevos' && !p.es_proyecto_nuevo) return false; // Por si en el futuro existe este flag
+
+                // --- B. Tipo de Propiedad ---
                 if (tipo && (!p.tipo_propiedad || p.tipo_propiedad.toLowerCase() !== tipo.toLowerCase())) return false;
-                // Filtro Comuna
+
+                // --- C. Ubicación ---
+                if (region && (!p.region || !p.region.toLowerCase().includes(region))) return false;
                 if (comuna && (!p.comuna || !p.comuna.toLowerCase().includes(comuna))) return false;
-                // Filtro Dorms/Baños
-                if (p.dormitorios < dorms) return false;
-                if (p.banos < banos) return false;
+                if (sector && (!p.sector || !p.sector.toLowerCase().includes(sector))) return false;
+
+                // --- D. Rango de Precios ---
+                let precioPropiedad = 0;
+                // Asignamos el precio dependiendo de si la propiedad es de venta o arriendo
+                if (p.operacion_venta) {
+                    precioPropiedad = parseFloat(p.precio_venta || 0);
+                } else if (p.operacion_arriendo || p.operacion_arriendo_temporal) {
+                    precioPropiedad = parseFloat(p.precio_arriendo || 0);
+                }
+
+                if (!isNaN(precioDesde) && precioPropiedad < precioDesde) return false;
+                if (!isNaN(precioHasta) && precioPropiedad > precioHasta) return false;
+
+                // --- E. Dormitorios y Baños (>=) ---
+                // Si eligen "3 o más" evalúa si la propiedad tiene menos de 3 (para descartarla)
+                if (dorms > 0 && (!p.dormitorios || parseInt(p.dormitorios) < dorms)) return false;
+                if (banos > 0 && (!p.banos || parseInt(p.banos) < banos)) return false;
 
                 return true;
             });
 
-            // Ordenar por ID descendente (más nuevas primero) si no vienen ordenadas
+            // 3. Ordenar (más recientes primero) y contar
             filteredProperties.sort((a, b) => b.id - a.id);
-
             document.getElementById('total-props').innerText = filteredProperties.length;
 
-            // Resetear a página 1 y renderizar
+            // 4. Volver a la página 1 y renderizar
             currentPage = 1;
             renderPaginated();
         }
+
+        // Función adicional solicitada para limpiar todos los filtros a su estado original
+        function limpiarFiltrosAvanzados() {
+            document.getElementById('advanced-filter-form').reset();
+            aplicarFiltrosAvanzados();
+        }
+
 
         function cambiarItemsPorPagina() {
             const select = document.getElementById('items-per-page');
