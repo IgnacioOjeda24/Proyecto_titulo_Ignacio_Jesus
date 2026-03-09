@@ -2229,7 +2229,7 @@ app.get('/api/db-test', async (req, res) => {
 
 app.get('/api/historias', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM historias WHERE aprobado = TRUE ORDER BY id DESC');
+        const result = await pool.query('SELECT * FROM historias_exito WHERE aprobado = TRUE ORDER BY id DESC');
         res.json({ success: true, data: result.rows });
     } catch (err) {
         console.error("Error obteniendo historias:", err);
@@ -2251,7 +2251,7 @@ app.post('/api/historias', upload.single('foto'), async (req, res) => {
 
     try {
         const query = `
-            INSERT INTO historias 
+            INSERT INTO historias_exito 
             (nombre_cliente, servicio_realizado, titulo_historia, testimonio, foto_url, valoracion, aprobado)
             VALUES ($1, $2, $3, $4, $5, $6, FALSE) RETURNING *
         `;
