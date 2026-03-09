@@ -317,13 +317,29 @@
                         <p class="small text-muted mb-4">Complete el formulario y coordinaremos una visita a la
                             brevedad.</p>
 
-                        <form onsubmit="alert('Solicitud enviada. ¡Te contactaremos pronto!'); return false;">
-                            <input type="text" class="form-control" placeholder="Nombre completo" required>
-                            <input type="email" class="form-control" placeholder="Correo electrónico" required>
-                            <input type="tel" class="form-control" placeholder="Teléfono / WhatsApp" required>
-                            <textarea class="form-control" rows="3"
-                                placeholder="Mensaje opcional (ej: Disponibilidad horaria)"></textarea>
-                            <button type="submit" class="btn-submit">ENVIAR SOLICITUD</button>
+                        <form id="form-agendar-visita">
+                            <input type="text" id="visita-nombre" class="form-control" placeholder="Nombre completo"
+                                required>
+                            <input type="email" id="visita-email" class="form-control" placeholder="Correo electrónico"
+                                required>
+                            <input type="tel" id="visita-telefono" class="form-control"
+                                placeholder="Teléfono / WhatsApp" required>
+
+                            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                <input type="date" id="visita-fecha" class="form-control" style="margin-bottom: 0;"
+                                    required title="Fecha de visita">
+                                <input type="time" id="visita-hora" class="form-control" style="margin-bottom: 0;"
+                                    required title="Hora de visita">
+                            </div>
+                            <small id="hora-hint"
+                                style="display:block; color:#888; margin-top:-5px; margin-bottom:15px; font-size:0.75rem; line-height:1.2;">
+                                * Días de semana: 17:30 a 21:00 hrs<br>
+                                * Fin de semana y festivos: 10:00 a 21:00 hrs
+                            </small>
+
+                            <textarea id="visita-mensaje" class="form-control" rows="2"
+                                placeholder="Mensaje opcional"></textarea>
+                            <button type="submit" id="btn-visita-submit" class="btn-submit">ENVIAR SOLICITUD</button>
                         </form>
 
                         <div class="mt-4 text-center">
@@ -604,6 +620,93 @@
                     }
                 })
                 .catch(e => console.error("Error cargando ficha:", e));
+            // --- NUEVA LÓGICA: CALENDARIO Y ENVÍO DE VISITAS ---
+            const inputFecha = document.getElementById('visita-fecha');
+            const inputHora = document.getElementById('visita-hora');
+            const hintHora = document.getElementById('hora-hint');
+
+            // Evitar que seleccionen fechas en el pasado
+            const today = new Date().toISOString().split('T')[0];
+            inputFecha.setAttribute('min', today);
+
+            // Lógica inteligente de cambio de horarios según el día
+            inputFecha.addEventListener('change', function () {
+                if (!this.value) return;
+                // Crear fecha forzando la hora local para evitar problemas de zona horaria
+                const dateObj = new Date(this.value + "T00:00:00");
+                const day = dateObj.getDay(); // 0 es Domingo, 6 es Sábado
+
+                if (day === 0 || day === 6) {
+                    // Es Fin de semana
+                    inputHora.setAttribute('min', '10:00');
+                    inputHora.setAttribute('max', '21:00');
+                    hintHora.innerHTML = "<strong>Horario seleccionado:</strong> Fin de semana (10:00 a 21:00 hrs).";
+                    hintHora.style.color = "#bfa378";
+                } else {
+                    // Es día de semana
+                    inputHora.setAttribute('min', '17:30');
+                    inputHora.setAttribute('max', '21:00');
+                    hintHora.innerHTML = "<strong>Horario seleccionado:</strong> Día de semana (17:30 a 21:00 hrs).<br><em>Si es festivo, indique la hora de mañana en el mensaje.</em>";
+                    hintHora.style.color = "#bfa378";
+                }
+                inputHora.value = ""; // Limpiar la hora si cambian el día
+            });
+
+            // Lógica de envío a n8n
+            document.getElementById('form-agendar-visita').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const timeVal = inputHora.value;
+                const minTime = inputHora.getAttribute('min');
+                const maxTime = inputHora.getAttribute('max');
+
+                // Validación estricta de la hora
+                if (minTime && maxTime && (timeVal < minTime || timeVal > maxTime)) {
+                    alert(`⚠️ Horario no válido.\nPara la fecha seleccionada, por favor ingresa una hora entre las ${minTime} y ${maxTime} hrs.`);
+                    return;
+                }
+
+                const btn = document.getElementById('btn-visita-submit');
+                btn.innerText = "Enviando...";
+                btn.disabled = true;
+
+                // Paquete de datos que le llegará a n8n
+                const payload = {
+                    propiedad_id: propId, // Sacamos el ID directo de la URL
+                    propiedad_titulo: document.getElementById('prop-title').innerText, // Lo leemos de la pantalla
+                    nombre: document.getElementById('visita-nombre').value,
+                    email: document.getElementById('visita-email').value,
+                    telefono: document.getElementById('visita-telefono').value,
+                    fecha: inputFecha.value,
+                    hora: inputHora.value,
+                    mensaje: document.getElementById('visita-mensaje').value,
+                    origen: "Formulario Ficha de Propiedad"
+                };
+
+                try {
+                    // Apuntamos al webhook de n8n
+                    const res = await fetch('https://n8n-marlen-auto.onrender.com/webhook-test/visita-propiedad', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (res.ok) {
+                        alert("✅ ¡Visita solicitada con éxito!\nMarlen se pondrá en contacto para confirmar la cita.");
+                        document.getElementById('form-agendar-visita').reset();
+                        hintHora.innerHTML = "* Días de semana: 17:30 a 21:00 hrs<br>* Fin de semana y festivos: 10:00 a 21:00 hrs";
+                        hintHora.style.color = "#888";
+                    } else {
+                        alert("❌ Hubo un problema al procesar tu solicitud. Por favor intenta mediante WhatsApp.");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("❌ Error de conexión con el sistema. Por favor, utiliza el botón de WhatsApp.");
+                } finally {
+                    btn.innerText = "ENVIAR SOLICITUD";
+                    btn.disabled = false;
+                }
+            });
         }
     </script>
 </body>
