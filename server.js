@@ -2229,11 +2229,19 @@ app.get('/api/db-test', async (req, res) => {
 
 app.get('/api/historias', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM historias_exito WHERE aprobado = TRUE ORDER BY id DESC');
+        let result;
+        try {
+            // Intento 1: Con filtro de aprobado (esquema completo)
+            result = await pool.query('SELECT * FROM historias_exito WHERE aprobado = TRUE ORDER BY id DESC');
+        } catch (e) {
+            // Intento 2: Sin filtro (por si la columna 'aprobado' no existe aún)
+            console.warn('⚠️ Columna aprobado no encontrada, listando todas:', e.message);
+            result = await pool.query('SELECT * FROM historias_exito ORDER BY id DESC');
+        }
         res.json({ success: true, data: result.rows });
     } catch (err) {
-        console.error("Error obteniendo historias:", err);
-        res.status(500).json({ success: false, message: 'Error en el servidor.' });
+        console.error("❌ Error obteniendo historias:", err.message);
+        res.status(500).json({ success: false, message: err.message });
     }
 });
 
