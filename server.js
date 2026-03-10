@@ -44,50 +44,59 @@ app.get('/web-ficha.html', async (req, res, next) => {
         // 2. Construir valores OG
         const BASE_URL = 'https://marlen-guzman-web.onrender.com';
         const ogTitle = p.titulo_publicacion || 'Propiedad | Marlen Guzmán';
+
+        // Tipo de operación y precio
         const tipoOp = p.operacion_venta ? 'Venta' : 'Arriendo';
         const precio = p.operacion_venta ? p.precio_venta : p.precio_arriendo;
         const moneda = p.operacion_venta ? p.moneda_venta : p.moneda_arriendo;
         const precioFmt = precio ? `${moneda} ${parseInt(precio).toLocaleString('es-CL')}` : '';
-        const ogDesc = `${tipoOp} · ${precioFmt} · ${p.comuna || ''}`.trim().replace(/^·|·$/g, '').trim();
+        const comunaStr = p.comuna ? ` · ${p.comuna}` : '';
+        const precioStr = precioFmt ? ` · ${precioFmt}` : '';
+        const descBase = p.descripcion_publica ? p.descripcion_publica.substring(0, 120) : '';
+        const ogDesc = descBase
+            ? `${tipoOp}${precioStr}${comunaStr} — ${descBase}`
+            : `${tipoOp}${precioStr}${comunaStr}`.trim();
+
+        // URL segura de la imagen (sin barras dobles)
         const imgRaw = p.imagen_principal || '';
         let ogImage = '';
-        if (imgRaw) {
-            if (imgRaw.startsWith('http')) {
-                ogImage = imgRaw;
-            } else {
-                // Quitar '/' inicial para evitar barras dobles (BASE_URL//uploads/...)
-                const cleanImgPath = imgRaw.startsWith('/') ? imgRaw.substring(1) : imgRaw;
-                ogImage = `${BASE_URL}/${cleanImgPath}`;
-            }
+        if (imgRaw.startsWith('http')) {
+            ogImage = imgRaw;
+        } else if (imgRaw) {
+            const cleanPath = imgRaw.startsWith('/') ? imgRaw.substring(1) : imgRaw;
+            ogImage = `${BASE_URL}/${cleanPath}`;
         } else {
-            // Imagen por defecto si no hay ninguna
             ogImage = `${BASE_URL}/Logo_MG.jpeg`;
         }
+
         const ogUrl = `${BASE_URL}/web-ficha.html?id=${propId}`;
 
-        // 3. Leer el archivo HTML y reemplazar las etiquetas OG vacías
+        // 3. Construir bloque OG completo (un solo string) y reemplazar entre delimitadores
+        const ogBlock = `<!-- OG:START -->
+    <meta id="og-title" property="og:title" content="${ogTitle}">
+    <meta id="og-type" property="og:type" content="website">
+    <meta id="og-description" property="og:description" content="${ogDesc}">
+    <meta id="og-image" property="og:image" content="${ogImage}">
+    <meta id="og-image-secure" property="og:image:secure_url" content="${ogImage}">
+    <meta id="og-image-width" property="og:image:width" content="1200">
+    <meta id="og-image-height" property="og:image:height" content="630">
+    <meta id="og-url" property="og:url" content="${ogUrl}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${ogTitle}">
+    <meta name="twitter:description" content="${ogDesc}">
+    <meta name="twitter:image" content="${ogImage}">
+    <!-- OG:END -->`;
+
+        // 4. Leer HTML y reemplazar bloque delimitado de una vez (sin regex frágil por etiqueta)
         const htmlPath = path.join(__dirname, 'web-ficha.html');
         let html = fs.readFileSync(htmlPath, 'utf8');
 
-        // Reemplazar los content="" de las etiquetas OG con los datos reales
         html = html.replace(
-            /(<meta id="og-title"[^>]*content=")[^"]*(">)/,
-            `$1${ogTitle}$2`
-        );
-        html = html.replace(
-            /(<meta id="og-description"[^>]*content=")[^"]*(">)/,
-            `$1${ogDesc}$2`
-        );
-        html = html.replace(
-            /(<meta id="og-image"[^>]*content=")[^"]*(">)/,
-            `$1${ogImage}$2`
-        );
-        html = html.replace(
-            /(<meta id="og-url"[^>]*content=")[^"]*(">)/,
-            `$1${ogUrl}$2`
+            /<!-- OG:START -->[\s\S]*?<!-- OG:END -->/,
+            ogBlock
         );
 
-        // Reemplazar también el <title> para que sea descriptivo
+        // Reemplazar también el <title> para que sea descriptivo en Google
         html = html.replace(
             /<title>[^<]*<\/title>/,
             `<title>${ogTitle} | Marlen Guzmán</title>`
@@ -98,7 +107,7 @@ app.get('/web-ficha.html', async (req, res, next) => {
 
     } catch (err) {
         console.error('❌ Error SSR Open Graph:', err.message);
-        next(); // Si falla, servir el archivo estático normal
+        next();
     }
 });
 
