@@ -50,7 +50,19 @@ app.get('/web-ficha.html', async (req, res, next) => {
         const precioFmt = precio ? `${moneda} ${parseInt(precio).toLocaleString('es-CL')}` : '';
         const ogDesc = `${tipoOp} · ${precioFmt} · ${p.comuna || ''}`.trim().replace(/^·|·$/g, '').trim();
         const imgRaw = p.imagen_principal || '';
-        const ogImage = imgRaw.startsWith('http') ? imgRaw : BASE_URL + imgRaw;
+        let ogImage = '';
+        if (imgRaw) {
+            if (imgRaw.startsWith('http')) {
+                ogImage = imgRaw;
+            } else {
+                // Quitar '/' inicial para evitar barras dobles (BASE_URL//uploads/...)
+                const cleanImgPath = imgRaw.startsWith('/') ? imgRaw.substring(1) : imgRaw;
+                ogImage = `${BASE_URL}/${cleanImgPath}`;
+            }
+        } else {
+            // Imagen por defecto si no hay ninguna
+            ogImage = `${BASE_URL}/Logo_MG.jpeg`;
+        }
         const ogUrl = `${BASE_URL}/web-ficha.html?id=${propId}`;
 
         // 3. Leer el archivo HTML y reemplazar las etiquetas OG vacías
