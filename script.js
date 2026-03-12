@@ -2107,3 +2107,61 @@ function renderizarIndicadores(d) {
         document.getElementById('nav-fecha').textContent = new Date().toLocaleDateString('es-CL');
     }
 }
+
+/* ================================================================= */
+/* CONTROLES FLOTANTES GLOBALES                                       */
+/* Botón "Volver Arriba" + Interruptor "Modo Oscuro / Claro"         */
+/* ================================================================= */
+(function () {
+    'use strict';
+
+    function initFloatingControls() {
+        // ── 1. Inyección dinámica del HTML ──────────────────────────────
+        const container = document.createElement('div');
+        container.id = 'floating-controls';
+        container.innerHTML = `
+            <button id="btn-theme-toggle" title="Cambiar tema" aria-label="Cambiar modo oscuro/claro">
+                <i class="fas fa-adjust"></i>
+            </button>
+            <button id="btn-back-to-top" title="Volver arriba" aria-label="Volver al inicio de la página">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+        `;
+        document.body.appendChild(container);
+
+        const btnTop   = document.getElementById('btn-back-to-top');
+        const btnTheme = document.getElementById('btn-theme-toggle');
+
+        // ── 2. Lógica "Volver Arriba" ───────────────────────────────────
+        window.addEventListener('scroll', function () {
+            if (window.scrollY > 300) {
+                btnTop.classList.add('show');
+            } else {
+                btnTop.classList.remove('show');
+            }
+        }, { passive: true });
+
+        btnTop.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // ── 3. Lógica "Modo Oscuro / Claro" ────────────────────────────
+        // Aplicar preferencia guardada al cargar la página
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+
+        btnTheme.addEventListener('click', function () {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+    }
+
+    // Ejecutar cuando el DOM esté listo (compatible con módulos ES)
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFloatingControls);
+    } else {
+        initFloatingControls();
+    }
+})();
