@@ -139,7 +139,7 @@ const pool = new Pool({
 
 // Eventos de monitoreo (ESTO ES LO QUE NECESITAS AQUÍ)
 pool.on('connect', () => {
-    console.log("✅ ¡CONECTADO A LA BASE DE DATOS DE RENDER! 🚀");
+    console.log("✅ ¡CONECTADO A NEON (BASE DE DATOS GRATUITA)! 🚀");
 });
 
 pool.on('error', (err) => {
