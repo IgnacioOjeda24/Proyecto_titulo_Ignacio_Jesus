@@ -281,6 +281,9 @@
                         <button onclick="copyLink()" id="btn-copy-link" title="Copiar Enlace"
                             style="background: #6c757d; color: white; border: none; width: 35px; height: 35px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: 0.3s;"><i
                                 class="fas fa-link"></i></button>
+                        <button onclick="mostrarQR()" style="background-color: #333; color: white; border: none; width: 35px; height: 35px; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; margin-left: 5px;" title="Generar QR de la página">
+                            <i class="fas fa-qrcode"></i>
+                        </button>
                     </div>
 
                     <div class="gallery-container">
@@ -793,6 +796,55 @@
             });
         }
 
+    </script>
+
+    <!-- ================= Modal QR ================= -->
+    <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="qrModalLabel" style="font-size: 1.1rem; font-weight: 600;">Escanea para ver en tu celular</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body text-center">
+            <!-- Aquí se dibujará el código QR -->
+            <div id="qrcode-container" style="display: flex; justify-content: center; padding: 15px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Librería externa ligera y gratuita para generar QR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <!-- Lógica para generar y mostrar el código QR -->
+    <script>
+    function mostrarQR() {
+        // 1. Limpiar el contenedor por si ya tenía un QR previo dibujado
+        const qrContainer = document.getElementById('qrcode-container');
+        qrContainer.innerHTML = '';
+        
+        // 2. Obtener la URL exacta de la página actual que está viendo el cliente
+        const urlActual = window.location.href;
+        
+        // 3. Generar el QR usando la librería insertándolo en el contenedor
+        new QRCode(qrContainer, {
+            text: urlActual,
+            width: 180,
+            height: 180,
+            colorDark : "#1a1a1a",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+        
+        // 4. Mostrar el Modal de Bootstrap
+        if (typeof bootstrap !== 'undefined') {
+            const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
+            qrModal.show();
+        } else {
+            alert("Atención: Bootstrap no se ha cargado correctamente en esta vista.");
+        }
+    }
     </script>
 </body>
 
