@@ -2040,6 +2040,7 @@ body.dark-mode #btn-theme-toggle {
 
 /* Invertir el logotipo del Navbar a color blanco en Modo Oscuro */
 body.dark-mode .nav-logo-img {
-    filter: invert(1) brightness(100%);
-    -webkit-filter: invert(1) brightness(100%);
+    filter: invert(1) grayscale(100%) brightness(200%) contrast(200%) !important;
+    -webkit-filter: invert(1) grayscale(100%) brightness(200%) contrast(200%) !important;
+    mix-blend-mode: screen !important;
 }
