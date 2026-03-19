@@ -433,6 +433,13 @@
 
         <script src="admin-auth.js"></script>
     </div>
+    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+<script type="module">
+    import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+    createChat({
+        webhookUrl: 'https://n8n-marlen-auto.onrender.com/webhook/3662a1e4-7936-49cc-ac76-7cdf5942e463/chat'
+    });
+</script>
 </body>
 
 </html>
