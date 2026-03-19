@@ -2,6 +2,7 @@
 /* 1. IMPORTACIÓN OBLIGATORIA (SIEMPRE EN LA LÍNEA 1)                */
 /* ================================================================= */
 import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+import bcrypt from "https://esm.run/bcryptjs";
 
 /* ================= CONFIGURACIÓN GLOBAL ================= */
 const API_URL = '/api/';
@@ -438,20 +439,22 @@ async function handleRegister(e) {
 
     if (pass !== confirm) { alert('Las contraseñas no coinciden'); return; }
 
-    const formData = {
-        nombre_completo: document.getElementById('reg-name').value,
-        username: document.getElementById('reg-username').value,
-        email: document.getElementById('reg-email').value,
-        password: pass,
-        telefono: document.getElementById('reg-phone').value
-    };
-
     const originalText = btn.textContent;
     btn.textContent = "Registrando...";
     btn.disabled = true;
 
     try {
-        const res = await fetch(`${API_URL}register`, {
+        const hashedPassword = bcrypt.hashSync(pass, 10);
+
+        const formData = {
+            nombre_completo: document.getElementById('reg-name').value,
+            username: document.getElementById('reg-username').value,
+            email: document.getElementById('reg-email').value,
+            telefono: document.getElementById('reg-phone').value,
+            password: hashedPassword
+        };
+
+        const res = await fetch(`https://n8n-marlen-auto.onrender.com/webhook-test/register-form2`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
@@ -459,11 +462,11 @@ async function handleRegister(e) {
         const data = await res.json();
 
         if (data.success) {
-            alert('✅ Registro exitoso.\n\nTe hemos enviado un correo de bienvenida.');
-            switchAuthMode('login');
+            alert("Registro exitoso");
+            if (typeof switchAuthMode === 'function') switchAuthMode('login');
             e.target.reset();
         } else {
-            alert("❌ Error: " + data.message);
+            alert("❌ Error: " + (data.message || "No se pudo completar el registro"));
         }
     } catch (err) {
         console.error(err);
