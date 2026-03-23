@@ -509,7 +509,7 @@ function setupRecoveryLogic() {
             const form = e.target.id === 'recovery-form' ? e.target : e.target.closest('#recovery-form');
             const emailInput = document.getElementById('recovery-email');
             const btn = form.querySelector('button');
-            
+
             const emailValue = emailInput.value.trim();
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(emailValue)) {
@@ -1778,7 +1778,7 @@ function renderizarIndicadores(d) {
         `;
         document.body.appendChild(container);
 
-        const btnTop   = document.getElementById('btn-back-to-top');
+        const btnTop = document.getElementById('btn-back-to-top');
         const btnTheme = document.getElementById('btn-theme-toggle');
 
         // ── 2. Lógica "Volver Arriba" ───────────────────────────────────
@@ -1831,7 +1831,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Selectores y variables de estado
     const btnIncrease = document.getElementById('btn-increase-font');
     const btnDecrease = document.getElementById('btn-decrease-font');
-    
+
     // Configuraciones de tamaño (en porcentaje)
     let currentSizePercentage = 100;
     const sizeStep = 10;
@@ -1866,11 +1866,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
+//Hola1
 /* ==========================================================================
    CARGA DE INDICADORES (WEBHOOK TEST)
    ========================================================================== */
-window.cargarIndicadores = async function() {
+window.cargarIndicadores = async function () {
     try {
         const response = await fetch('https://n8n-marlen-auto.onrender.com/webhook-test/indicadores-chile-2303');
         const data = await response.json();
@@ -1907,7 +1907,7 @@ window.cargarIndicadores = async function() {
             '#nav-ipc',
             '#banner-fecha', '#dash-fecha', '#nav-fecha'
         ];
-        
+
         selectors.forEach(selector => {
             const el = document.querySelector(selector);
             if (el) el.textContent = fallbackText;
